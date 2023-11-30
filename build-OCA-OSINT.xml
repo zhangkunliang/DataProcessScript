@@ -1,0 +1,75 @@
+<project name="OSINT_OCA_DATADEALSCRIPT" default="app" basedir=".">
+
+    <presetdef name="javac">
+        <javac includeantruntime="false" />
+    </presetdef>
+
+    <!-- 可编辑部分  自定义属性 start -->
+    <property name="jar.name" value="osint_oca_datadealscript" />
+    <property name="version" value="1.0.0" />
+    <!-- 可编辑部分 end -->
+
+    <property name="module.name" value="fdp-rule" />
+    <property name="src" value="src" />
+    <property name="lib" value="lib" />
+	<property name="resources" value="resources" />
+    <property name="fdp.lib" value="fdp/lib" />
+    <property name="build.home" value="build" />
+    <property name="build.classes" value="${build.home}/classes" />
+    <property name="build.install" value="${build.home}/${module.name}-${version}" />
+    <property name="build.fdp-rule" value="${build.home}/${module.name}-${version}/${module.name}" />
+    <tstamp>
+        <format property="timestamp" pattern="yyyyMMddHHmmss" />
+    </tstamp>
+    <path  id="compile.classpath">
+        <fileset dir="${lib}">
+            <include name="*.jar" />
+        </fileset>
+        <fileset dir="${fdp.lib}">
+            <include name="*.jar" />
+        </fileset>
+
+        <pathelement location="${build.classes}" />
+    </path>
+
+    <target name="clean">
+        <delete dir="${build.home}" />
+    </target>
+
+    <target name="prepare" depends="clean">
+        <mkdir dir="${build.home}" />
+        <mkdir dir="${build.classes}" />
+        <mkdir dir="${build.install}" />
+        <mkdir dir="${build.fdp-rule}" />
+        <mkdir dir="${build.fdp-rule}/${lib}" />
+    	<mkdir dir="${build.fdp-rule}/${resources}" />
+    </target>
+
+    <target name="compile" depends="prepare">
+        <javac srcdir="${src}" destdir="${build.classes}" source="1.8" target="1.8" encoding="utf-8" debug="on">
+            <classpath refid="compile.classpath" />
+        </javac>
+        <copy todir="${build.classes}">
+            <fileset dir="${src}" excludes="**/*.java,log4j2.xml,IKExpression.cfg.xml" />
+        </copy>
+    </target>
+
+    <target name="jar" depends="compile">
+        <jar jarfile="${build.fdp-rule}/lib/fdp-rule-${jar.name}-${version}.jar" basedir="${build.classes}" />
+        <delete dir="${build.classes}" />
+    </target>
+
+    <target name="app" depends="jar" description="create app">
+        <copy todir="${build.fdp-rule}/${lib}">
+            <fileset dir="${lib}" />
+        </copy>
+    	<copy todir="${build.fdp-rule}/${resources}">
+            <fileset dir="${resources}">
+                <exclude name="task*.xml" />
+            </fileset>
+        </copy>
+        <zip destfile="${build.home}/${module.name}-${jar.name}.zip">
+            <fileset dir="${build.fdp-rule}/" />
+        </zip>
+    </target>
+</project>

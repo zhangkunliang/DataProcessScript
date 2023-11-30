@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<chain name="ADProcess">
+	<command class="com.fh.fdp.rule.oca.data.deal.init.Init" />
+	<command class="com.fh.fdp.rule.oca.data.deal.exfield.ExternalField" />
+	<command class="com.fh.fdp.rule.oca.data.deal.process.ADProcess" />
+</chain>

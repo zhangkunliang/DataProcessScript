@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<chain name="ClueOutProcess">
+	<command class="com.fh.fdp.rule.oca.data.deal.init.Init" />
+	<command class="com.fh.fdp.rule.oca.data.deal.process.ClueOutAddLocalcodeProcess" />
+</chain>

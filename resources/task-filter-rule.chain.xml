@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 规则chain配置文件，一个文件配置一个chain name必填，不能和别人同名。全局唯一 -->
+<chain name="task-filter-rule">
+	<command class="com.fh.fdp.rule.oca.data.deal.init.Init" />
+	<command class="com.fh.fdp.rule.oca.data.deal.domestic.process.FilterCommand" />
+
+</chain>

@@ -1,0 +1,14 @@
+Manifest-Version: 1.0
+Main-Class: com.fh.fdp.rule.oca.data.deal.domestic.utils.Utils
+Class-Path: FhfsStorageClient-1.8.0.jar log4j-slf4j-impl-2.17.1.jar zip4
+ j-2.9.1.jar commons-io-2.11.0.jar spring-tx-5.3.27.jar lz4-1.3.0.jar sp
+ ring-context-5.3.27.jar fastjson-1.2.83.jar commons-logging-1.2.jar pro
+ tobuf-xmen-2.4.1.jar spring-context-support-5.3.27.jar spring-core-5.3.
+ 27.jar log4j-api-2.17.1.jar spring-beans-5.3.27.jar commons-dbcp2-2.7.0
+ .jar fp-mini-client-0.0.1.jar log4j-core-2.17.1.jar dom4j-2.1.4.jar asm
+ -all-5.0.2.jar IKExpression-2.1.2.jar postgresql-42.5.4.jar commons-lan
+ g3-3.5.jar commons-net-3.9.0.jar fitdataprep-engine-3.3.2.jar jedis-3.7
+ .0.jar guava-28.2-jre.jar commons-compress-1.21.jar zookeeper-3.4.6.jar
+  commons-pool2-2.7.0.jar slf4j-api-1.7.30.jar gson-2.10.1.jar hutool-al
+ l-5.8.16.jar
+
