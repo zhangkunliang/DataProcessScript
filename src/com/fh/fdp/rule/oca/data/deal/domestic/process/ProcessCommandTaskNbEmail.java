@@ -20,10 +20,11 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 老海量表任务处理
+ * 邮箱境内资产处理
+ *
  * @author zkl
  */
-public class ProcessCommandTaskNb extends RuleBaseCommand {
+public class ProcessCommandTaskNbEmail extends RuleBaseCommand {
 
     private JedisUtil jedis = null;
 
@@ -44,30 +45,14 @@ public class ProcessCommandTaskNb extends RuleBaseCommand {
         for (List<DataField> row : inputRows) {
             try {
                 for (DataField field : row) {
-                    if (Constant.APP_ID2.equalsIgnoreCase(field.getName())) {
+                    if (Constant.MAIL_FROM.equalsIgnoreCase(field.getName())) {
                         field.setValue(encoder.encode(field.getValue()));
                         List<DataField> data = new ArrayList<>(new Gson().fromJson(new Gson().toJson(row), new TypeToken<List<DataField>>() {
                         }.getType()));
                         data.forEach(apptype -> {
                             if (Constant.isAppType(apptype.getName())) {
-                                data.forEach(d -> {
-                                    // 0 未下发采集 1 已下发采集 2 已确认下发采集 3，采集成功 4，采集失败
-                                    PhoneProcess.dataCollectSet3(d);
-                                    if (CluesTask.SOURCE.equalsIgnoreCase(d.getName())) {
-                                        d.setValue("");
-                                    }
-
-                                    if (CluesTask.RULE_TYPE.equalsIgnoreCase(d.getName())) {
-                                        d.setValue("2");
-                                    }
-                                    if (Constant.MD_ID.equalsIgnoreCase(d.getName())) {
-                                        d.setValue(MD5.create().digestHex(apptype.getValue() + "\t" + "2" + "\t" + field.getValue()));
-
-                                    }
-                                    if (CluesTask.RULE_ID.equalsIgnoreCase(d.getName())) {
-                                        d.setValue(MD5.create().digestHex(apptype.getValue() + "\t" + "2" + "\t" + field.getValue()));
-                                    }
-                                });
+                                apptype.setValue(Constant.TUITE_TYPE);
+                                taskSetValue(field, data, apptype);
                             }
                         });
                         output.add(data);
@@ -79,24 +64,43 @@ public class ProcessCommandTaskNb extends RuleBaseCommand {
         }
         msg.setData(output); // 设置新的返回数据
         output.forEach(in -> {
-            Map<String, String> cache = new HashMap<>();
+            Map<String, String> cacheNb = new HashMap<>();
             in.forEach(d -> {
                 logger.debug(GsonUtil.toStr(d));
-                if (d.getName().equalsIgnoreCase(Constant.APP_TYPE_2)) {
-                    cache.put(CluesTask.APPTYPE, d.getValue());
-                } else if (d.getName().equalsIgnoreCase(Constant.MD_ID)) {
-                    cache.put(CluesTask.MDID, d.getValue());
-                } else if (d.getName().equalsIgnoreCase(Constant.APP_ID2)) {
-                    cache.put(CluesTask.RULE_VALUE, d.getValue());
+                if (d.getName().equalsIgnoreCase(CluesTask.ID)) {
+                    cacheNb.put(CluesTask.MDID, d.getValue());
+                } else if (d.getName().equalsIgnoreCase(Constant.APP_TYPE)) {
+                    cacheNb.put(CluesTask.APPTYPE, d.getValue());
+                } else if (d.getName().equalsIgnoreCase(Constant.MAIL_FROM)) {
+                    cacheNb.put(CluesTask.RULE_VALUE, d.getValue());
                 } else {
-                    cache.put(d.getName(), d.getValue());
+                    cacheNb.put(d.getName(), d.getValue());
                 }
             });
-            logger.debug("md_id-->{}",cache.get(CluesTask.MDID));
-            jedis.add(cache.get(CluesTask.MDID), GsonUtil.toStr(cache), config.getTaskCache());
+            logger.info("md_id-->{}", cacheNb.get(CluesTask.MDID));
+            jedis.add(cacheNb.get(CluesTask.MDID), GsonUtil.toStr(cacheNb), config.getTaskCache());
         });
         getExecutor().sendToNext(this, msg); // 最后把数据发送到下一环节
 
+    }
+
+    /**
+     * 0 未下发采集 1 已下发采集 2 已确认下发采集 3，采集成功 4，采集失败
+     */
+    private void taskSetValue(DataField field, List<DataField> data, DataField apptype) {
+        data.forEach(d -> {
+
+            PhoneProcess.dataCollectSet3(d);
+            if (CluesTask.SOURCE.equalsIgnoreCase(d.getName())) {
+                d.setValue("");
+            }
+            if (CluesTask.RULE_TYPE.equalsIgnoreCase(d.getName())) {
+                d.setValue("5");
+            }
+            if (CluesTask.ID.equalsIgnoreCase(d.getName())) {
+                d.setValue(MD5.create().digestHex(apptype.getValue() + "\t" + "5" + "\t" + field.getValue()));
+            }
+        });
     }
 
     @Override
