@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 规则chain配置文件，一个文件配置一个chain name必填，不能和别人同名。全局唯一 -->
+<chain name="task-resource-oss-rule">
+	<!--规则工程包开发的class必填 值为command类路径 -->
+	<command class="com.fh.fdp.rule.oca.data.deal.init.Init" />
+
+<!--	<command class="com.fh.fdp.rule.oca.data.deal.domestic.process.FilterOssResourceCommand" />-->
+
+<!--	<command class="com.fh.fdp.rule.oca.data.deal.domestic.process.RedisCommandOss" />-->
+
+<!--	<command class="com.fh.fdp.rule.oca.data.deal.domestic.process.DistinctCommandOss" />-->
+
+<!--	<command class="com.fh.fdp.rule.oca.data.deal.domestic.exfield.ExternalFieldCommandTask" />-->
+
+<!--	<command class="com.fh.fdp.rule.oca.data.deal.domestic.process.ProcessCommandTaskOss" />-->
+
+</chain>
