@@ -2,6 +2,7 @@ package com.fh.fdp.rule.oca.data.deal.domestic.process;
 
 import cn.hutool.crypto.digest.MD5;
 import com.fh.fdp.rule.oca.data.conf.Config;
+import com.fh.fdp.rule.oca.data.deal.domestic.utils.CluesTask;
 import com.fh.fdp.rule.oca.data.deal.domestic.utils.Constant;
 import com.fh.fdp.rule.oca.data.tools.Encode;
 import com.fh.fdp.rule.oca.data.tools.GsonUtil;
@@ -37,7 +38,7 @@ public class ProcessPersonCommandTask extends RuleBaseCommand {
 		}
 		Config config = (Config) getExecutionContext().get("config");
 		String key = config.getPasskey();
-		Encode encoder = new Encode(key, logger);
+		Encode encoder = new Encode(key,logger);
 		List<List<DataField>> inputRows = msg.getData();
 
 		List<List<DataField>> output = new ArrayList<>();
@@ -45,24 +46,20 @@ public class ProcessPersonCommandTask extends RuleBaseCommand {
 		for (List<DataField> row : inputRows) {
 			try {
 				for (DataField field : row) {
-					if ("userid".equalsIgnoreCase(field.getName())) {
-						if (StringUtils.isNotBlank(field.getValue())){
-							List<DataField> data = new ArrayList<>();
-							data.addAll(new Gson().fromJson(new Gson().toJson(row), new TypeToken<List<DataField>>() {
-							}.getType()));
-							data.forEach(apptype -> {
-								if (Constant.isAppType(apptype.getName())) {
-									data.forEach(d -> {
-										if ("rule_id".equalsIgnoreCase(d.getName())) {
-											d.setValue(MD5.create().digestHex(
-													apptype + "\t" + "2" + "\t" + encoder.encode(field.getValue())));
-										}
-									});
-								}
-							});
-							output.add(data);
-						}
-
+					if (Constant.APP_ID.equalsIgnoreCase(field.getName()) && StringUtils.isNotBlank(field.getValue())) {
+						List<DataField> data = new ArrayList<>(new Gson().fromJson(new Gson().toJson(row), new TypeToken<List<DataField>>() {
+						}.getType()));
+						data.forEach(apptype -> {
+							if (Constant.isAppType(apptype.getName())) {
+								data.forEach(d -> {
+									if ("rule_id".equalsIgnoreCase(d.getName())) {
+										d.setValue(MD5.create().digestHex(
+												apptype + "\t" + "2" + "\t" + encoder.encode(field.getValue())));
+									}
+								});
+							}
+						});
+						output.add(data);
 					}
 				}
 			} catch (Exception e) {
@@ -73,16 +70,16 @@ public class ProcessPersonCommandTask extends RuleBaseCommand {
 		output.forEach(in -> {
 			Map<String, String> cache = new HashMap<>();
 			in.forEach(d -> {
-				logger.info(GsonUtil.toStr(d));
-				if (d.getName().equals("md_id")) {
-					cache.put("mdid", d.getValue());
-				} else if (d.getName().equals("userid")) {
-					cache.put("rule_value", d.getValue());
+				logger.debug(GsonUtil.toStr(d));
+				if (d.getName().equals(Constant.MD_ID)) {
+					cache.put(CluesTask.MDID, d.getValue());
+				} else if (d.getName().equals(Constant.APP_ID)) {
+					cache.put(CluesTask.RULE_VALUE, d.getValue());
 				} else {
 					cache.put(d.getName(), d.getValue());
 				}
 			});
-			jedis.add(cache.get("mdid"), GsonUtil.toStr(cache), config.getTaskCache());
+			jedis.add(cache.get(CluesTask.MDID), GsonUtil.toStr(cache), config.getTaskCache());
 		});
 		getExecutor().sendToNext(this, msg); // 最后把数据发送到下一环节
 	}
@@ -90,7 +87,7 @@ public class ProcessPersonCommandTask extends RuleBaseCommand {
 	@Override
 	public void onInit() {
 		Config conf = (Config) getExecutionContext().get("config");
-		jedis = new JedisUtil(conf.getRedisIp(), conf.getRedisPort(), conf.getRedisPass(), logger);
+		jedis = new JedisUtil(conf.getRedisIp(), conf.getRedisPort(), conf.getRedisPass());
 	}
 
 	@Override

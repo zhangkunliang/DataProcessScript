@@ -9,7 +9,11 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.ArrayList;
 import java.util.List;
 
-
+/**
+ * 过滤抖音采集数据
+ *
+ * @author zkl
+ */
 public class FilterDyResourceCommand extends RuleBaseCommand {
 
     @Override
@@ -26,46 +30,56 @@ public class FilterDyResourceCommand extends RuleBaseCommand {
         List<List<DataField>> outputRowsFilter = new ArrayList<>(); // 定义新的返回数据
         for (List<DataField> row : inputRows) {
             for (DataField field : row) {
-                if (Constant.isAppType(field.getName())) {  // 过滤B站类型数据
-                    if (Constant.DOUYIN_TYPE.equals(field.getValue())) {
-                        outputRowsFilter.add(row);
-                    }
+                if (Constant.isAppType(field.getName())
+                        && Constant.DOUYIN_TYPE2.equals(field.getValue())) {  // 过滤抖音类型数据
+                    outputRowsFilter.add(row);
                 }
             }
         }
         List<List<DataField>> outputRowsFilter2 = new ArrayList<>(); // 定义新的返回数据
         for (List<DataField> row : outputRowsFilter) {
             for (DataField field : row) {
-                    if (Constant.APP_HARDWARE_FEATURE.equalsIgnoreCase(field.getName())) {    //过滤APP_HARDWARE_FEATURE不为空的数据
-                    if (StringUtils.isNotBlank(field.getValue())) {
-                        outputRowsFilter2.add(row);
-                    }
-                }
-            }
-        }
-        List<List<DataField>> outputRowsFilter3 = new ArrayList<>(); // 定义新的返回数据
-        for (List<DataField> row : outputRowsFilter2) {
-            for (DataField field : row) {
-                if (Constant.AUTH_ACCOUNT.equalsIgnoreCase(field.getName())) {  //过滤auth_account不为空数据
-                    if (StringUtils.isNotBlank(field.getValue())) {
-                        outputRowsFilter3.add(row);
-                    }
+                if (Constant.TOOL_NAME.equalsIgnoreCase(field.getName())
+                        && StringUtils.isNotBlank(field.getValue()) && "tt".equals(field.getValue())) {    //TOOL_NAME
+                    outputRowsFilter2.add(row);
                 }
             }
         }
 
-        msg.setData(outputRowsFilter3); // 设置新的返回数据
+        List<List<DataField>> outputRowsFilter3 = new ArrayList<>(); // 定义新的返回数据
+        for (List<DataField> row : outputRowsFilter2) {
+            for (DataField field : row) {
+                if (Constant.AUTH_ACCOUNT.equalsIgnoreCase(field.getName())
+                        && StringUtils.isNotBlank(field.getValue())) {  //过滤auth_account不为空数据
+                    outputRowsFilter3.add(row);
+                }
+            }
+        }
+
+        List<List<DataField>> outputRowsFilter4 = new ArrayList<>(); // 定义新的返回数据
+        for (List<DataField> row : outputRowsFilter3) {
+            for (DataField field : row) {
+                if (Constant.MIX_RELATE_TOKEN.equalsIgnoreCase(field.getName())
+                        && StringUtils.isNotBlank(field.getValue())) {  // MIX_RELATE_TOKEN
+                    outputRowsFilter4.add(row);
+                }
+            }
+        }
+
+
+        msg.setData(outputRowsFilter4); // 设置新的返回数据
         getExecutor().sendToNext(this, msg); // 最后把数据发送到下一环节
 
     }
 
-
     @Override
     public void onInit() {
+        // 初始化
     }
 
     @Override
     public void onStop() {
+        // 停止
     }
 
 }

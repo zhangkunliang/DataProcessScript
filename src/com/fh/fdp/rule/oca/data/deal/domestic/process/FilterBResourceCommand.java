@@ -11,6 +11,8 @@ import java.util.List;
 
 /**
  * 过滤B站采集资源且cookie和auth_account不为空
+ *
+ * @author zkl
  */
 public class FilterBResourceCommand extends RuleBaseCommand {
 
@@ -28,30 +30,24 @@ public class FilterBResourceCommand extends RuleBaseCommand {
         List<List<DataField>> outputRowsFilter = new ArrayList<>(); // 定义新的返回数据
         for (List<DataField> row : inputRows) {
             for (DataField field : row) {
-                if (Constant.isAppType(field.getName())) {  // 过滤B站类型数据
-                    if (Constant.BZHAN_TYPE.equals(field.getValue())) {
-                        outputRowsFilter.add(row);
-                    }
+                if (Constant.isAppType(field.getName()) && Constant.BZHAN_TYPE.equals(field.getValue())) {  // 过滤B站类型数据
+                    outputRowsFilter.add(row);
                 }
             }
         }
         List<List<DataField>> outputRowsFilter2 = new ArrayList<>(); // 定义新的返回数据
         for (List<DataField> row : outputRowsFilter) {
             for (DataField field : row) {
-                    if (Constant.COOKIE.equalsIgnoreCase(field.getName())) {    //过滤cookie不为空的数据
-                    if (StringUtils.isNotBlank(field.getValue())) {
-                        outputRowsFilter2.add(row);
-                    }
+                if (Constant.COOKIE.equalsIgnoreCase(field.getName()) && StringUtils.isNotBlank(field.getValue())) {    //过滤cookie不为空的数据
+                    outputRowsFilter2.add(row);
                 }
             }
         }
         List<List<DataField>> outputRowsFilter3 = new ArrayList<>(); // 定义新的返回数据
         for (List<DataField> row : outputRowsFilter2) {
             for (DataField field : row) {
-                if (Constant.AUTH_ACCOUNT.equalsIgnoreCase(field.getName())) {  //过滤auth_account不为空数据
-                    if (StringUtils.isNotBlank(field.getValue())) {
-                        outputRowsFilter3.add(row);
-                    }
+                if (Constant.AUTH_ACCOUNT.equalsIgnoreCase(field.getName()) && StringUtils.isNotBlank(field.getValue())) {  //过滤auth_account不为空数据
+                    outputRowsFilter3.add(row);
                 }
             }
         }
@@ -64,10 +60,12 @@ public class FilterBResourceCommand extends RuleBaseCommand {
 
     @Override
     public void onInit() {
+        // 初始化
     }
 
     @Override
     public void onStop() {
+        // 停止
     }
 
 }

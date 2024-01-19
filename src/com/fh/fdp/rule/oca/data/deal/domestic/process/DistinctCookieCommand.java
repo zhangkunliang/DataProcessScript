@@ -18,12 +18,11 @@ import java.util.Set;
 /**
  * 快手 采集资源去重
  * cookie
+ * @author zkl
  */
 
 public class DistinctCookieCommand extends RuleBaseCommand {
-
-	private String cookieKey = Constant.COOKIE_KEY;
-
+	
 	private JedisUtil jedis = null;
 
 	@Override
@@ -37,7 +36,7 @@ public class DistinctCookieCommand extends RuleBaseCommand {
 		Config config = (Config) getExecutionContext().get("config");
 
 		long expandTime = config.getExpandDomestic() * Constant.ONE_DAYS_TIME;
-		Encode encoder = new Encode(config.getPasskey(), logger);
+		Encode encoder = new Encode(config.getPasskey(),logger);
 		// 获取多行数据，一行行处理
 		List<List<DataField>> inputRows = msg.getData();
 		Set<String> cache = new HashSet<>();
@@ -47,14 +46,11 @@ public class DistinctCookieCommand extends RuleBaseCommand {
 			for (DataField field : row) {
 				if (Constant.COOKIE.equalsIgnoreCase(field.getName())) {
 					field.setValue(encoder.encode(field.getValue()));
-					List<DataField> data = new ArrayList<>();
-					data.addAll(new Gson().fromJson(new Gson().toJson(row), new TypeToken<List<DataField>>() {
+					List<DataField> data = new ArrayList<>(new Gson().fromJson(new Gson().toJson(row), new TypeToken<List<DataField>>() {
 					}.getType()));
-
-
 					for(DataField d : data){
 						if (Constant.isAppType(d.getName())) {
-							String key = d.getValue() + cookieKey + field.getValue();
+							String key = d.getValue() + Constant.COOKIE_KEY + field.getValue();
 							if (cache.contains(key)) {
 								break;
 							}
@@ -76,13 +72,13 @@ public class DistinctCookieCommand extends RuleBaseCommand {
 		}
 		msg.setData(outputRowsDistinct); // 设置新的返回数据
 		getExecutor().sendToNext(this, msg); // 最后把数据发送到下一环节
-		logger.info("cost time:" + (System.currentTimeMillis() - startTime));
+		logger.debug("cost time:{}",(System.currentTimeMillis() - startTime));
 	}
 
 	@Override
 	public void onInit() {
 		Config conf = (Config) getExecutionContext().get("config");
-		jedis = new JedisUtil(conf.getRedisIp(), conf.getRedisPort(), conf.getRedisPass(), logger);
+		jedis = new JedisUtil(conf.getRedisIp(), conf.getRedisPort(), conf.getRedisPass());
 
 	}
 

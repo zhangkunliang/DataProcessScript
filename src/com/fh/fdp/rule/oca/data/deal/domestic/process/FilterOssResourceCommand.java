@@ -1,7 +1,6 @@
 package com.fh.fdp.rule.oca.data.deal.domestic.process;
 
 import com.fh.fdp.rule.oca.data.deal.domestic.utils.Constant;
-import com.fh.fdp.rule.oca.data.deal.domestic.utils.Utils;
 import com.fh.fitdataprep.biga.bean.DataField;
 import com.fh.fitdataprep.biga.command.rule.RuleBaseCommand;
 import com.fh.fitdataprep.biga.spi.Message;
@@ -11,11 +10,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 过滤userName 为空，且userName 是 email
+ * 过滤抖音采集数据
  *
- * @author dhl
+ * @author zkl
  */
-public class FilterTwCommand extends RuleBaseCommand {
+public class FilterOssResourceCommand extends RuleBaseCommand {
 
     @Override
     public void execute(Message msg) throws Exception {
@@ -31,7 +30,7 @@ public class FilterTwCommand extends RuleBaseCommand {
         List<List<DataField>> outputRowsFilter = new ArrayList<>(); // 定义新的返回数据
         for (List<DataField> row : inputRows) {
             for (DataField field : row) {
-                if (Constant.isUserName(field.getName()) && StringUtils.isNotBlank(field.getValue()) && Utils.isEmail(field.getValue())) {
+                if (Constant.isAppType(field.getName())) {  //
                     outputRowsFilter.add(row);
                 }
             }
@@ -39,17 +38,27 @@ public class FilterTwCommand extends RuleBaseCommand {
         List<List<DataField>> outputRowsFilter2 = new ArrayList<>(); // 定义新的返回数据
         for (List<DataField> row : outputRowsFilter) {
             for (DataField field : row) {
-                if (Constant.isAppType(field.getName()) && Constant.TUITE_TYPE.equals(field.getValue())) {  // 过滤推特类型数据
+                if (Constant.AUTH_ACCOUNT.equalsIgnoreCase(field.getName())
+                        && StringUtils.isNotBlank(field.getValue())) {  //过滤auth_account不为空数据
                     outputRowsFilter2.add(row);
                 }
             }
         }
 
-        msg.setData(outputRowsFilter2); // 设置新的返回数据
+        List<List<DataField>> outputRowsFilter3 = new ArrayList<>(); // 定义新的返回数据
+        for (List<DataField> row : outputRowsFilter2) {
+            for (DataField field : row) {
+                if (Constant.ACCOUNT.equalsIgnoreCase(field.getName())
+                        && StringUtils.isNotBlank(field.getValue())) {  //
+                    outputRowsFilter3.add(row);
+                }
+            }
+        }
+
+        msg.setData(outputRowsFilter3); // 设置新的返回数据
         getExecutor().sendToNext(this, msg); // 最后把数据发送到下一环节
 
     }
-
 
     @Override
     public void onInit() {

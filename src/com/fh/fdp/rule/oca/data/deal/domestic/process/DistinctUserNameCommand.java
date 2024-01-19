@@ -2,6 +2,7 @@ package com.fh.fdp.rule.oca.data.deal.domestic.process;
 
 import com.fh.fdp.rule.oca.data.conf.Config;
 import com.fh.fdp.rule.oca.data.deal.domestic.utils.Constant;
+import com.fh.fdp.rule.oca.data.deal.domestic.utils.Utils;
 import com.fh.fdp.rule.oca.data.tools.JedisUtil;
 import com.fh.fitdataprep.biga.bean.DataField;
 import com.fh.fitdataprep.biga.command.rule.RuleBaseCommand;
@@ -19,8 +20,6 @@ import java.util.Map;
  * eamil
  */
 public class DistinctUserNameCommand extends RuleBaseCommand {
-
-	private String userIdKey = Constant.TASK_KEY;
 
 	private JedisUtil jedis = null;
 
@@ -44,27 +43,12 @@ public class DistinctUserNameCommand extends RuleBaseCommand {
 		for (List<DataField> row : inputRows) {
 			for (DataField field : row) {
 				if (Constant.isUserName(field.getName())) {
-					List<DataField> data = new ArrayList<>();
-					data.addAll(new Gson().fromJson(new Gson().toJson(row), new TypeToken<List<DataField>>() {
+					List<DataField> data = new ArrayList<>(new Gson().fromJson(new Gson().toJson(row), new TypeToken<List<DataField>>() {
 					}.getType()));
-
 					for(DataField d : data){
 						if (Constant.isAppType(d.getName())) {
-							String key = d.getValue() + userIdKey + field.getValue();
-							if (cache.containsKey(key)) {
-								break;
-							}
-							cache.put(d.getValue() + userIdKey + field.getValue(),
-									String.valueOf(System.currentTimeMillis() / 1000));
-							boolean isExitId = jedis.exist(key, config.getAtvtCache());
-							if (isExitId) {
-								break;
-							}
-							jedis.add(key,
-									String.valueOf(System.currentTimeMillis() / 1000), expandTime,
-									config.getAtvtCache());
-							outputRowsDistinct.add(row);
-
+							String key = d.getValue() + Constant.TASK_KEY + field.getValue();
+							Utils.splicingKey(config, expandTime, cache, outputRowsDistinct, row, key, jedis);
 							break;
 						}
 					}
@@ -74,13 +58,13 @@ public class DistinctUserNameCommand extends RuleBaseCommand {
 		}
 		msg.setData(outputRowsDistinct); // 设置新的返回数据
 		getExecutor().sendToNext(this, msg); // 最后把数据发送到下一环节
-		logger.info("cost time:" + (System.currentTimeMillis() - startTime));
+		logger.debug("cost time:{}",(System.currentTimeMillis() - startTime));
 	}
 
 	@Override
 	public void onInit() {
 		Config conf = (Config) getExecutionContext().get("config");
-		jedis = new JedisUtil(conf.getRedisIp(), conf.getRedisPort(), conf.getRedisPass(), logger);
+		jedis = new JedisUtil(conf.getRedisIp(), conf.getRedisPort(), conf.getRedisPass());
 
 	}
 

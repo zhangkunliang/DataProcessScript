@@ -2,25 +2,23 @@ package com.fh.fdp.rule.oca.data.deal.domestic.process;
 
 import com.fh.fdp.rule.oca.data.conf.Config;
 import com.fh.fdp.rule.oca.data.deal.domestic.utils.Constant;
-import com.fh.fdp.rule.oca.data.deal.domestic.utils.Utils;
+import com.fh.fdp.rule.oca.data.tools.GsonUtil;
 import com.fh.fdp.rule.oca.data.tools.JedisUtil;
 import com.fh.fitdataprep.biga.bean.DataField;
 import com.fh.fitdataprep.biga.command.rule.RuleBaseCommand;
 import com.fh.fitdataprep.biga.spi.Message;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 /**
- * 境内资产去重
- *
- * @author zkl 任务表
+   redis 保存上网认证账号
+ * @author zkl
  */
-public class DistinctCommandDy extends RuleBaseCommand {
+public class RedisAdCommandOss extends RuleBaseCommand {
+
+
 
 	private JedisUtil jedis = null;
 
@@ -34,28 +32,30 @@ public class DistinctCommandDy extends RuleBaseCommand {
 		}
 		Config config = (Config) getExecutionContext().get("config");
 
-		long expandTime = config.getExpandDomestic() * Constant.ONE_DAYS_TIME;
+		long expandTime = 30 * Constant.ONE_DAYS_TIME;
 
 		// 获取多行数据，一行行处理
 		List<List<DataField>> inputRows = msg.getData();
-		Map<String, String> cache = new HashMap<>();
-		List<List<DataField>> outputRowsDistinct = new ArrayList<>(); // 定义新的返回数据
-		for (List<DataField> row : inputRows) {
-			for (DataField field : row) {
-				if (Constant.MIX_RELATE_TOKEN.equalsIgnoreCase(field.getName())) {
-					List<DataField> data = new ArrayList<>(new Gson().fromJson(new Gson().toJson(row), new TypeToken<List<DataField>>() {
-					}.getType()));
-					for(DataField d : data){
-						if (Constant.isAppType(d.getName())) {
-							String key = d.getValue() + Constant.MIX_RELATE_TOKEN + field.getValue();
-							Utils.splicingKey(config, expandTime, cache, outputRowsDistinct, row, key, jedis);
-                        }
-					}
-					break;
+
+
+		inputRows.forEach(in -> {
+			Map<String, String> cache = new HashMap<>();
+			in.forEach(d -> {
+				if(d.getName().equalsIgnoreCase(Constant.ACCOUNT)){
+					cache.put(Constant.APP_ID, d.getValue());
 				}
-			}
-		}
-		msg.setData(outputRowsDistinct); // 设置新的返回数据
+				if(d.getName().equalsIgnoreCase(Constant.AUTH_TYPE)){
+					cache.put(Constant.AUTH_TYPE, d.getValue());
+				}
+				if(d.getName().equalsIgnoreCase(Constant.AUTH_ACCOUNT)){
+					cache.put(Constant.AUTH_ACCOUNT, d.getValue());
+				}
+
+			});
+			logger.debug(GsonUtil.toStr(cache));
+			jedis.add(cache.get(Constant.APP_ID), GsonUtil.toStr(cache),expandTime, config.getAtvtCache());
+		});
+		msg.setData(inputRows); // 设置新的返回数据
 		getExecutor().sendToNext(this, msg); // 最后把数据发送到下一环节
 		logger.debug("cost time:{}",(System.currentTimeMillis() - startTime));
 	}

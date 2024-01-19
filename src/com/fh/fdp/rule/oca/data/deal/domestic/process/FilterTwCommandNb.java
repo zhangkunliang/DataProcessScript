@@ -12,6 +12,8 @@ import java.util.List;
 
 /**
  * 过滤appid 为空，且appid 是 email
+ *
+ * @author zkl
  */
 public class FilterTwCommandNb extends RuleBaseCommand {
 
@@ -29,22 +31,16 @@ public class FilterTwCommandNb extends RuleBaseCommand {
         List<List<DataField>> outputRowsFilter = new ArrayList<>(); // 定义新的返回数据
         for (List<DataField> row : inputRows) {
             for (DataField field : row) {
-                if (Constant.isUserId(field.getName())) {
-                    if (StringUtils.isNotBlank(field.getValue()) && Utils.isEmail(field.getValue())) {
-                        outputRowsFilter.add(row);
-                    }
-
+                if (Constant.isUserId(field.getName()) && StringUtils.isNotBlank(field.getValue()) && Utils.isEmail(field.getValue())) {
+                    outputRowsFilter.add(row);
                 }
             }
         }
-        // TODO   加一个appType是Twiiter的过滤
         List<List<DataField>> outputRowsFilter2 = new ArrayList<>(); // 定义新的返回数据
         for (List<DataField> row : outputRowsFilter) {
             for (DataField field : row) {
-                if (Constant.isAppType(field.getName())) {  // 过滤推特类型数据
-                    if (Constant.TUITE_TYPE.equals(field.getValue())) {
-                        outputRowsFilter2.add(row);
-                    }
+                if (Constant.isAppType(field.getName()) && Constant.TUITE_TYPE.equals(field.getValue())) {  // 过滤推特类型数据
+                    outputRowsFilter2.add(row);
                 }
             }
         }
@@ -57,10 +53,12 @@ public class FilterTwCommandNb extends RuleBaseCommand {
 
     @Override
     public void onInit() {
+        // 初始化
     }
 
     @Override
     public void onStop() {
+        // 停止
     }
 
 }
