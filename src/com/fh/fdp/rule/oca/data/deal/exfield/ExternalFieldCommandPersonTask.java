@@ -7,13 +7,9 @@ import java.util.List;
 
 /**
  * ExternalFieldCommandDemo 规则开发样例 </br>
- * 继承ExternalFieldCommand类,在externalFields方法中实现新增的字段
- * 
- * @version 1.0
- * @date 2022/5/11
- * @since 1.8
+ * 继承ExternalFieldCommand类,在externalFields方法中实现新增的字段 关联表不需要添加字段
  */
-public class ExternalField extends ExternalFieldCommand {
+public class ExternalFieldCommandPersonTask extends ExternalFieldCommand {
 
 	/**
 	 * 用于声明规则新产生的字段 , 可添加多个字段
@@ -22,8 +18,7 @@ public class ExternalField extends ExternalFieldCommand {
 	 */
 	@Override
 	public List<String> externalFields() {
-		return Arrays.asList("apptype", "rule_type", "rule_value", "collect_status", "collect_count", "updatetime",
-				"createtime", "source");
+		return Arrays.asList("rule_id", "createtime");// create_time
 	}
 
 }
