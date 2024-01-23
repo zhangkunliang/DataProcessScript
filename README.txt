@@ -1,5 +1,4 @@
-【FDP规则引擎开发工程目录介绍】
-FDP-Rule
+﻿【规则引擎开发工程目录介绍】
 ├─src
 │  ├─com
 │  │  └─fh
@@ -14,7 +13,7 @@ FDP-Rule
 │  └─log4j2.xml 日志配置文件
 ├─fdp
 │  └─lib FDP提供的公共jar包，供开发自定义command使用
-├─lib 用于存放fdp/lib目录之外的jar包，由FDP研发人员审核确认后确定是否使用
+├─lib 用于存放fdp/lib目录之外的jar包，由研发人员审核确认后确定是否使用
 ├─data 用于存放测试数据
 │  └─test.bcp 样例工程测试数据
 ├─build.xml ant打包脚本
