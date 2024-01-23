@@ -1,17 +1,14 @@
 package com.fh.fdp.rule.oca.data.deal.process;
 
 import cn.hutool.core.io.file.FileReader;
-import cn.hutool.core.util.ZipUtil;
 import cn.hutool.crypto.digest.MD5;
 import com.fh.fdp.rule.oca.data.conf.*;
-import com.fh.fdp.rule.oca.data.deal.domestic.utils.CluesTask;
 import com.fh.fdp.rule.oca.data.deal.domestic.utils.CollectField;
 import com.fh.fdp.rule.oca.data.tools.Encode;
 import com.fh.fdp.rule.oca.data.tools.GsonUtil;
 import com.fh.fdp.rule.oca.data.tools.StorageClient;
 import com.fh.fitdataprep.biga.bean.BigaFile;
 import com.fh.fitdataprep.biga.bean.DataField;
-import com.fh.fitdataprep.biga.bean.DiskFile;
 import com.fh.fitdataprep.biga.command.rule.RuleBaseCommand;
 import com.fh.fitdataprep.biga.core.BigaConst;
 import com.fh.fitdataprep.biga.core.stats.StatsReporter;
@@ -21,49 +18,45 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.stream.JsonReader;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.*;
-import java.util.Map.Entry;
 
-public class ResultZipReader extends RuleBaseCommand {
+public class KeyPointResultZipReader extends RuleBaseCommand {
     private Config config = null;
     private StorageClient fsClient = null;
 
     @Override
     public void execute(Message msg) throws Exception {
         long now = Instant.now().getEpochSecond();
-        logger.info("start zip reader . now:{} ", now);
+        logger.info("start zip reader . now: {}", now);
         // 空包处理
         if (msg.getData() == null) {
             getExecutor().sendToNext(this, msg);
             return;
         }
         String key = config.getPasskey();
-        //
         Encode encoder = new Encode(key,logger);
-
         BigaFile zipFile = msg.getData();
         int totalcount = 0;
         Long totalFile = msg.getProperty(BigaConst.MSG_TOTAL_FILE, Long.class);
-        String tmppath = config.getTmpPath() + File.separator + "OCA_ZIP_" + UUID.randomUUID().toString();
+        String tmppath = config.getTmpPath() + File.separator + "OTHER_ZIP_" + UUID.randomUUID().toString();
         new File(tmppath).mkdir();
-        logger.info("init zip reader over.time{}", (Instant.now().getEpochSecond() - now));
+        logger.info("init zip reader over.time:{}", (Instant.now().getEpochSecond() - now));
         try {
-            zipUnzip(zipFile, tmppath);
-            logger.info("unzip file over.time:{} and file size:{}", (Instant.now().getEpochSecond() - now), zipFile.length());
+            ResultZipReader.zipUnzip(zipFile, tmppath);
+            logger.info("unzip file over.time:{}and file size:{}", (Instant.now().getEpochSecond() - now),
+                    zipFile.length());
+            // 重点目标文件协议
+            List<WebPost> wbo = new ArrayList<>();
+            List<GroupChat> cis = new ArrayList<>();
             List<GroupInfo> gis = new ArrayList<>();
             List<GroupMember> gms = new ArrayList<>();
-            List<PersonInfo> pis = new ArrayList<>();
-            boolean hasDomainTypeSina = false;
             Map<String, String> fileCache = new HashMap<>();
             CrawlerStatus status = new CrawlerStatus();
-            String apptype = "";
             File[] fileList = new File(tmppath).listFiles();
             assert fileList != null;
             for (File f : fileList) {
@@ -76,49 +69,75 @@ public class ResultZipReader extends RuleBaseCommand {
                     JsonReader jr = new JsonReader(new FileReader(f, StandardCharsets.UTF_8).getReader());
                     jr.setLenient(true);
                     JsonObject obj = JsonParser.parseReader(jr).getAsJsonObject();
-                    if (obj.has(CollectField.DOMAIN_ID) && !obj.get(CollectField.DOMAIN_ID).isJsonNull()) {
-                        apptype = obj.get(CollectField.DOMAIN_ID).getAsString();
-                    } else {
-                        logger.error("Result file do not contains domainid, no apptype,ignore and del file..");
+                    if (!obj.has(CollectField.DOMAIN_ID) || obj.get(CollectField.DOMAIN_ID).isJsonNull()) {  // 获取appType
+                        logger.error("Result file donot contains domainid, no apptype,ignore and del file..");
                         break;
                     }
-                    // 是否有微博类型
-                    hasDomainTypeSina = obj.has(CollectField.DOMAIN_TYPE) && !obj.get(CollectField.DOMAIN_TYPE).isJsonNull() && obj.get(CollectField.DOMAIN_TYPE).getAsInt() == 0;
+                    String appType = obj.has(CollectField.DOMAIN_ID) ? obj.get(CollectField.DOMAIN_ID).getAsString() : "";
+                    String businessTag = obj.has(CollectField.BUSINESS_TAG) ? obj.get(CollectField.BUSINESS_TAG).getAsString() : "";
+                    String clueId = obj.has(CollectField.CLUE_ID) ? obj.get(CollectField.CLUE_ID).getAsString() : "";
+
                     if (obj.has(CollectField.DATA) && obj.get(CollectField.DATA).isJsonArray()) {
                         obj.get(CollectField.DATA).getAsJsonArray().forEach(ele -> {
                             String type = ele.getAsJsonObject().get(CollectField.RESOURCE_TYPE).getAsString();
                             switch (type) {
+                                case "OSS_BBS_WEBPOST":
+                                    ele.getAsJsonObject().get(CollectField.RESOURCE_CONTENT).getAsJsonArray()
+                                            .forEach(e -> {
+                                                WebPost webPost = GsonUtil.fromJson(e, WebPost.class);
+                                                webPost.setBusinessTag(businessTag);
+                                                webPost.setClueId(clueId);
+                                                webPost.setAppType(appType);
+                                                wbo.add(webPost);
+                                            });
+                                    break;
                                 case "OSS_IM_GROUPINFO":
                                     ele.getAsJsonObject().get(CollectField.RESOURCE_CONTENT).getAsJsonArray()
-                                            .forEach(e -> gis.add(GsonUtil.fromJson(e, GroupInfo.class)));
-                                    break;
-                                case "OSS_COMMON_PERSONINFO":
-                                    ele.getAsJsonObject().get(CollectField.RESOURCE_CONTENT).getAsJsonArray()
-                                            .forEach(e -> pis.add(GsonUtil.fromJson(e, PersonInfo.class)));
+                                            .forEach(e -> {
+                                                GroupInfo groupInfo = GsonUtil.fromJson(e, GroupInfo.class);
+                                                groupInfo.setBusinessTag(businessTag);
+                                                groupInfo.setClueId(clueId);
+                                                groupInfo.setAppType(appType);
+                                                gis.add(groupInfo);
+                                            });
                                     break;
                                 case "OSS_IM_GROUPMEMBER":
                                     ele.getAsJsonObject().get(CollectField.RESOURCE_CONTENT).getAsJsonArray()
-                                            .forEach(e -> gms.add(GsonUtil.fromJson(e, GroupMember.class)));
+                                            .forEach(e -> {
+                                                GroupMember groupMember = GsonUtil.fromJson(e, GroupMember.class);
+                                                groupMember.setBusinessTag(businessTag);
+                                                groupMember.setClueId(clueId);
+                                                groupMember.setAppType(appType);
+                                                gms.add(groupMember);
+                                            });
+                                    break;
+                                case "OSS_IM_GROUPCHAT":
+                                    ele.getAsJsonObject().get(CollectField.RESOURCE_CONTENT).getAsJsonArray()
+                                            .forEach(e -> {
+                                                GroupChat groupChat = GsonUtil.fromJson(e, GroupChat.class);
+                                                groupChat.setBusinessTag(businessTag);
+                                                groupChat.setClueId(clueId);
+                                                groupChat.setAppType(appType);
+                                                cis.add(groupChat);
+                                            });
                                     break;
                                 default:
                                     logger.error("无法识别的数据类型,跳过{}", type);
-                                    break;
                             }
                         });
                     }
-                    logger.info("deal result.json over,cost{}", (Instant.now().getEpochSecond() - time));
+                    logger.info("deal result.json over,cost:{}", (Instant.now().getEpochSecond() - time));
                 } else if (f.getName().endsWith(".json")) {
                     long time = Instant.now().getEpochSecond();
                     JsonReader jr = new JsonReader(new FileReader(f, StandardCharsets.UTF_8).getReader());
                     jr.setLenient(true);
                     JsonObject obj = JsonParser.parseReader(jr).getAsJsonObject();
+                    String apptype = "";
                     if (obj.has(CollectField.DOMAIN) && !obj.get(CollectField.DOMAIN).isJsonNull()) {
                         apptype = obj.get(CollectField.DOMAIN).getAsString();
                     } else {
-                        status = null;
                         break;
                     }
-
                     status.setCollectStatus(obj.get(CollectField.RESULT_CODE).getAsInt());
                     status.setUpdatetime(Instant.now().getEpochSecond());
 
@@ -141,30 +160,43 @@ public class ResultZipReader extends RuleBaseCommand {
                 }
             }
             logger.info("upload fs file over.time{}", (Instant.now().getEpochSecond() - now));
-            // 分别发送到对应的11+1张表
-            final String apt = apptype;
-            if (!gis.isEmpty()) {
+            if (!wbo.isEmpty()) {
                 List<List<DataField>> rows = new ArrayList<>();
-                gis.forEach(gi -> {
+                wbo.forEach(wb -> {
                     List<DataField> row = new ArrayList<>();
-                    new Gson().toJsonTree(gi).getAsJsonObject().entrySet().forEach(e -> {
+                    new Gson().toJsonTree(wb).getAsJsonObject().entrySet().forEach(e -> {
                         if (e.getKey().equals(CollectField.PORTRAIT_IMAGE) && StringUtils.isNotBlank(e.getValue().getAsString())) {
                             String fsDir = fileCache.get(StringUtils.substringAfter(e.getValue().getAsString(), "/"));
                             row.add(new DataField(e.getKey(), fsDir));
-                            logger.info("transPic: {} : {} ", e.getKey(), fsDir);
+                            logger.debug("transPic :{}:{}", e.getKey(), fsDir);
                         } else {
                             row.add(new DataField(e.getKey(), e.getValue().getAsString()));
                         }
                     });
-                    row.add(new DataField(CluesTask.APPTYPE,
-                            config.getWaapptypes().get(getMapKeyByValue(config.getApptypes(), apt))));
+
                     rows.add(row);
                 });
                 totalcount += rows.size();
-                sendMessage(msg, "adm_base_org_overseas_groupinfo", rows, 0);
-                sendMessage(msg, "adm_rele_group_place_overseas_address_total", rows, 0);
-                sendMessage(msg, "adm_rele_group_place_overseas_address_detail", rows, 0);
-                sendMessage(msg, "oss_im_groupinfo_overseas", rows, 0);
+                sendMessage(msg, "oss_bbs_webpost", rows, 0);
+            }
+            if (!gis.isEmpty()) {
+                List<List<DataField>> rows = new ArrayList<>();
+                gis.forEach(data -> {
+                    List<DataField> row = new ArrayList<>();
+                    new Gson().toJsonTree(data).getAsJsonObject().entrySet().forEach(e -> {
+                        if (e.getKey().equals(CollectField.PORTRAIT_IMAGE)) {
+                            String fsDir = fileCache.get(StringUtils.substringAfter(e.getValue().getAsString(), "/"));
+                            row.add(new DataField(e.getKey(), fsDir));
+                            logger.debug("transPic:{}: {}", e.getKey(), fsDir);
+                        } else {
+                            row.add(new DataField(e.getKey(), e.getValue().getAsString()));
+                        }
+                    });
+
+                    rows.add(row);
+                });
+                totalcount += rows.size();
+                sendMessage(msg, "oss_im_groupinfo", rows, 0);
             }
             if (!gms.isEmpty()) {
                 List<List<DataField>> rows = new ArrayList<>();
@@ -174,79 +206,36 @@ public class ResultZipReader extends RuleBaseCommand {
                         if (e.getKey().equals(CollectField.PORTRAIT_IMAGE)) {
                             String fsDir = fileCache.get(StringUtils.substringAfter(e.getValue().getAsString(), "/"));
                             row.add(new DataField(e.getKey(), fsDir));
-                            logger.info("transPic:{}:{}", e.getKey(), fsDir);
+                            logger.debug("transPic:{}:{}", e.getKey(), fsDir);
                         } else {
                             row.add(new DataField(e.getKey(), e.getValue().getAsString()));
                         }
                     });
-                    row.add(new DataField(CluesTask.APPTYPE,
-                            config.getWaapptypes().get(getMapKeyByValue(config.getApptypes(), apt))));
                     rows.add(row);
                 });
                 totalcount += rows.size();
-                sendMessage(msg, "adm_base_org_overseas_gpmembers", rows, 0);
-                sendMessage(msg, "oss_im_groupmember_overseas", rows, 0);
-                sendMessage(msg, "adm_base_person_overseas_personinfo", rows, 0);
-                sendMessage(msg, "oss_common_personinfo_overseas", rows, 0);
+                sendMessage(msg, "oss_im_groupmember", rows, 0);
             }
-            if (!pis.isEmpty()) {
+            if (!cis.isEmpty()) {
                 List<List<DataField>> rows = new ArrayList<>();
-                boolean finalHasDomainTypeSina = hasDomainTypeSina;
-                pis.forEach(data -> {
+                cis.forEach(data -> {
                     List<DataField> row = new ArrayList<>();
                     new Gson().toJsonTree(data).getAsJsonObject().entrySet().forEach(e -> {
-                        if (e.getKey().equals(CollectField.PORTRAIT_IMAGE)) {
-                            String fsDir = "";
-                            if (finalHasDomainTypeSina) { // 境内没有 “/"
-                                fsDir = fileCache.get(e.getValue().getAsString());
-                            } else {
-                                fsDir = fileCache.get(StringUtils.substringAfter(e.getValue().getAsString(), "/"));
-                            }
+                        if (e.getKey().equals(CollectField.MAIN_FILE)) {
+                            String fsDir = fileCache.get(StringUtils.substringAfterLast(e.getValue().getAsString(), "/"));
                             row.add(new DataField(e.getKey(), fsDir));
-                            logger.info("transPic:{}:{}", e.getKey(), fsDir);
+                            logger.debug("transPic:{}:{}", e.getKey(), fsDir);
                         } else {
                             row.add(new DataField(e.getKey(), e.getValue().getAsString()));
                         }
                     });
 
-
-                    if (finalHasDomainTypeSina) {
-                        row.add(new DataField(CluesTask.APPTYPE, apt));
-                    } else {
-                        row.add(new DataField(CluesTask.APPTYPE,
-                                config.getWaapptypes().get(getMapKeyByValue(config.getApptypes(), apt))));
-                    }
-
                     rows.add(row);
                 });
                 totalcount += rows.size();
-
-                // 境内输出4张表
-                if (hasDomainTypeSina) {
-                    sendMessage(msg, "adm_base_person_overseas_personinfo", rows, 0);
-                    sendMessage(msg, "adm_base_person_domestic_personinfo", rows, 0);
-                    sendMessage(msg, "adm_rele_person_person_overseas_relation_detail", rows, 0);
-                    sendMessage(msg, "adm_rele_person_person_overseas_relation_total", rows, 0);
-                    sendMessage(msg, "oss_common_personinfo_overseas", rows, 0);
-                } else {
-                    sendMessage(msg, "adm_base_person_overseas_personinfo", rows, 0);
-                    sendMessage(msg, "oss_common_personinfo_overseas", rows, 0);
-                    sendMessage(msg, "adm_rele_person_person_overseas_relation_detail", rows, 0);
-                    sendMessage(msg, "adm_rele_person_person_overseas_relation_total", rows, 0);
-                    sendMessage(msg, "adm_rele_person_place_overseas_address_detail", rows, 0);
-                    sendMessage(msg, "adm_rele_person_place_overseas_address_total", rows, 0);
-                }
+                sendMessage(msg, "oss_im_groupchat", rows, 0);
             }
-            if (status != null && status.getMdid() != null) {
-                List<List<DataField>> rows = new ArrayList<>();
-                List<DataField> row = new ArrayList<>();
-                new Gson().toJsonTree(status).getAsJsonObject().entrySet()
-                        .forEach(e -> row.add(new DataField(e.getKey(), e.getValue().getAsString())));
-                rows.add(row);
-                totalcount += rows.size();
-                sendMessage(msg, "RESP", rows, 0);
-            }
-            logger.info("send Message over.time{}", (Instant.now().getEpochSecond() - now));
+            logger.info("send Message over.time {}", (Instant.now().getEpochSecond() - now));
             // 上报处理文件详情
             StatsReporter.reportInputFileCount(this, null, 1L, null, totalFile);
             StatsReporter.reportInputFileInfo(this, null, getTaskConfig().getSourceDefinition().getTableName(),
@@ -259,17 +248,6 @@ public class ResultZipReader extends RuleBaseCommand {
             StatsReporter.reportInputFileCount(this, null, null, 1L, totalFile);
         }
         FileUtils.deleteDirectory(new File(tmppath));
-    }
-
-    static void zipUnzip(BigaFile zipFile, String tmppath) throws IOException {
-        if (zipFile instanceof DiskFile) {
-            ZipUtil.unzip(((DiskFile) zipFile).getFile(), new File(tmppath));
-        } else {
-            // 流文件 先落盘
-            File diskFile = new File(tmppath + File.separator + "tmp.zip");
-            FileUtils.writeByteArrayToFile(diskFile, IOUtils.toByteArray(zipFile.getInputStream()));
-            ZipUtil.unzip(diskFile, new File(tmppath));
-        }
     }
 
     private void sendMessage(Message msg, String tablename, List<List<DataField>> rows, int failCount) {
@@ -287,17 +265,6 @@ public class ResultZipReader extends RuleBaseCommand {
         } catch (Exception e) {
             logger.error("", e);
         }
-    }
-
-    private String getMapKeyByValue(Map<String, String> ori, String value) {
-        Optional<Entry<String, String>> ew;
-        if (value != null) {
-            ew = ori.entrySet().stream().filter(e -> value.equals(e.getValue())).findFirst();
-            if (ew.isPresent()) {
-                return ew.get().getKey();
-            }
-        }
-        return null;
     }
 
     @Override

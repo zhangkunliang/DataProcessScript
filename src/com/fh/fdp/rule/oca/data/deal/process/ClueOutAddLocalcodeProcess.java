@@ -16,10 +16,12 @@ public class ClueOutAddLocalcodeProcess extends RuleBaseCommand {
 
 	@Override
 	public void onInit() {
+		// 初始化
 	}
 
 	@Override
 	public void onStop() {
+		// 停止
 	}
 
 }

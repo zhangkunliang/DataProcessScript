@@ -5,7 +5,6 @@ import com.fh.fitdataprep.biga.bean.DataField;
 import com.fh.fitdataprep.biga.command.rule.RuleBaseCommand;
 import com.fh.fitdataprep.biga.spi.Message;
 import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
 import org.apache.commons.lang3.StringUtils;
 
 import java.nio.charset.StandardCharsets;
@@ -13,7 +12,7 @@ import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 
-public class ResultOutput extends RuleBaseCommand {
+public class KeyPointResultOutput extends RuleBaseCommand {
 
 	@Override
 	public void execute(Message msg) throws Exception {
@@ -47,17 +46,7 @@ public class ResultOutput extends RuleBaseCommand {
 	}
 
 	private JsonArray change2Json(List<List<DataField>> inputRows) {
-		return getJsonElements(inputRows);
-	}
-
-	static JsonArray getJsonElements(List<List<DataField>> inputRows) {
-		JsonArray arr = new JsonArray();
-		inputRows.forEach(li -> {
-			JsonObject job = new JsonObject();
-			li.forEach(l -> job.addProperty(l.getName(), l.getValue()));
-			arr.add(job);
-		});
-		return arr;
+		return ResultOutput.getJsonElements(inputRows);
 	}
 
 	@Override
