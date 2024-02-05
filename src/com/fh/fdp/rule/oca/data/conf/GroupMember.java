@@ -12,10 +12,8 @@ public class GroupMember {
 
 	@SerializedName("GroupType")
 	private String groupType;
-
 	@SerializedName("GroupID")
 	private String groupID;
-
 	@SerializedName("GroupName")
 	private String groupName;
 	@SerializedName("GroupUserName")
@@ -50,130 +48,46 @@ public class GroupMember {
 	private long joinTime;
 	@SerializedName("CollectTime")
 	private long collectTime;
-
-	private int HasAccess;
-	private int IsBlocked;
-	private int IsFake;
-	private int IsScam;
-	private int IsSupport;
-	private int IsVerified;
-	private String LanguageCode;
-	private long LastOnLineTime;
-	private int NeedPhoneNumberPrivacyException;
-	private String RestrictReason;
-	private int UserType;
-	private String Commands;
-	private String ShareText;
-	private String LinkAddressCode;
-	private String DataSource;
+	@SerializedName("AppType")
+	private String appType;
+	@SerializedName("CLUE_ID")
+	private String clueId;
+	@SerializedName("BUSINESS_TAG")
+	private String businessTag;
+	@SerializedName("HasAccess")
+	private int hasAccess;
+	@SerializedName("IsBlocked")
+	private int isBlocked;
+	@SerializedName("IsFake")
+	private int isFake;
+	@SerializedName("IsScam")
+	private int isScam;
+	@SerializedName("IsSupport")
+	private int isSupport;
+	@SerializedName("IsVerified")
+	private int isVerified;
+	@SerializedName("LanguageCode")
+	private String languageCode;
+	@SerializedName("LastOnLineTime")
+	private long lastOnLineTime;
+	@SerializedName("NeedPhoneNumberPrivacyException")
+	private int needPhoneNumberPrivacyException;
+	@SerializedName("RestrictReason")
+	private String restrictReason;
+	@SerializedName("UserType")
+	private int userType;
+	@SerializedName("Commands")
+	private String commands;
+	@SerializedName("ShareText")
+	private String shareText;
+	@SerializedName("LinkAddressCode")
+	private String linkAddressCode;
+	@SerializedName("DataSource")
+	private String dataSource;
 	/**
 	 * 短链 -》 长链
 	 */
-	private String LinkMapping;
-
-	public String getCommands() {
-		return Commands;
-	}
-
-	public void setCommands(String commands) {
-		Commands = commands;
-	}
-
-	public String getShareText() {
-		return ShareText;
-	}
-
-	public void setShareText(String shareText) {
-		ShareText = shareText;
-	}
-
-	public int getHasAccess() {
-		return HasAccess;
-	}
-
-	public void setHasAccess(int hasAccess) {
-		HasAccess = hasAccess;
-	}
-
-	public int getIsBlocked() {
-		return IsBlocked;
-	}
-
-	public void setIsBlocked(int isBlocked) {
-		IsBlocked = isBlocked;
-	}
-
-	public int getIsFake() {
-		return IsFake;
-	}
-
-	public void setIsFake(int isFake) {
-		IsFake = isFake;
-	}
-
-	public int getIsScam() {
-		return IsScam;
-	}
-
-	public void setIsScam(int isScam) {
-		IsScam = isScam;
-	}
-
-	public int getIsSupport() {
-		return IsSupport;
-	}
-
-	public void setIsSupport(int isSupport) {
-		IsSupport = isSupport;
-	}
-
-	public int getIsVerified() {
-		return IsVerified;
-	}
-
-	public void setIsVerified(int isVerified) {
-		IsVerified = isVerified;
-	}
-
-	public String getLanguageCode() {
-		return LanguageCode;
-	}
-
-	public void setLanguageCode(String languageCode) {
-		LanguageCode = languageCode;
-	}
-
-	public long getLastOnLineTime() {
-		return LastOnLineTime;
-	}
-
-	public void setLastOnLineTime(long lastOnLineTime) {
-		LastOnLineTime = lastOnLineTime;
-	}
-
-	public int getNeedPhoneNumberPrivacyException() {
-		return NeedPhoneNumberPrivacyException;
-	}
-
-	public void setNeedPhoneNumberPrivacyException(int needPhoneNumberPrivacyException) {
-		NeedPhoneNumberPrivacyException = needPhoneNumberPrivacyException;
-	}
-
-	public String getRestrictReason() {
-		return RestrictReason;
-	}
-
-	public void setRestrictReason(String restrictReason) {
-		RestrictReason = restrictReason;
-	}
-
-	public int getUserType() {
-		return UserType;
-	}
-
-	public void setUserType(int userType) {
-		UserType = userType;
-	}
+	private String linkMapping;
 
 	public String getGroupType() {
 		return groupType;
@@ -339,37 +253,78 @@ public class GroupMember {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
+		if (this == obj){
 			return true;
-		if (obj == null)
+		}
+
+		if (obj == null){
 			return false;
-		if (getClass() != obj.getClass())
+		}
+
+		if (getClass() != obj.getClass()){
 			return false;
+		}
+
 		GroupMember other = (GroupMember) obj;
 		if (groupID == null) {
-			if (other.groupID != null)
+			if (other.groupID != null){
 				return false;
-		} else if (!groupID.equals(other.groupID))
+			}
+
+		} else if (!groupID.equals(other.groupID)){
 			return false;
+		}
+
 		if (groupType == null) {
-			if (other.groupType != null)
+			if (other.groupType != null){
 				return false;
-		} else if (!groupType.equals(other.groupType))
+			}
+
+		} else if (!groupType.equals(other.groupType)){
 			return false;
+		}
+
 		if (userSign == null) {
-			if (other.userSign != null)
+			if (other.userSign != null){
 				return false;
-		} else if (!userSign.equals(other.userSign))
+			}
+
+		} else if (!userSign.equals(other.userSign)){
 			return false;
+		}
 		return true;
 	}
 
 	public String getLinkMapping() {
-		return LinkMapping;
+		return linkMapping;
 	}
 
 	public void setLinkMapping(String linkMapping) {
-		LinkMapping = linkMapping;
+		this.linkMapping = linkMapping;
+	}
+
+	public String getAppType() {
+		return appType;
+	}
+
+	public void setAppType(String appType) {
+		this.appType = appType;
+	}
+
+	public String getClueId() {
+		return clueId;
+	}
+
+	public void setClueId(String clueId) {
+		this.clueId = clueId;
+	}
+
+	public String getBusinessTag() {
+		return businessTag;
+	}
+
+	public void setBusinessTag(String businessTag) {
+		this.businessTag = businessTag;
 	}
 
 	@Override
@@ -379,28 +334,131 @@ public class GroupMember {
 				+ ", userName=" + userName + ", nickName=" + nickName + ", portraitImage=" + portraitImage
 				+ ", mobilePhone=" + mobilePhone + ", introduction=" + introduction + ", email=" + email + ", zombieId="
 				+ zombieId + ", role=" + role + ", status=" + status + ", remark=" + remark + ", joinTime=" + joinTime
-				+ ", collectTime=" + collectTime + ", HasAccess=" + HasAccess + ", IsBlocked=" + IsBlocked + ", IsFake="
-				+ IsFake + ", IsScam=" + IsScam + ", IsSupport=" + IsSupport + ", IsVerified=" + IsVerified
-				+ ", LanguageCode=" + LanguageCode + ", LastOnLineTime=" + LastOnLineTime
-				+ ", NeedPhoneNumberPrivacyException=" + NeedPhoneNumberPrivacyException + ", RestrictReason="
-				+ RestrictReason + ", UserType=" + UserType + ", Commands=" + Commands + ", ShareText=" + ShareText
-				+ ", LinkMapping=" + LinkMapping + "]";
+				+ ", collectTime=" + collectTime + ", HasAccess=" + hasAccess + ", IsBlocked=" + isBlocked + ", IsFake="
+				+ isFake + ", IsScam=" + isScam + ", IsSupport=" + isSupport + ", IsVerified=" + isVerified
+				+ ", LanguageCode=" + languageCode + ", LastOnLineTime=" + lastOnLineTime
+				+ ", NeedPhoneNumberPrivacyException=" + needPhoneNumberPrivacyException + ", RestrictReason="
+				+ restrictReason + ", UserType=" + userType + ", Commands=" + commands + ", ShareText=" + shareText
+				+ ", LinkMapping=" + linkMapping + ", appType=" + appType + ", clueId=" + clueId+ ", businessTag=" + businessTag + "]";
+	}
+
+	public int getHasAccess() {
+		return hasAccess;
+	}
+
+	public void setHasAccess(int hasAccess) {
+		this.hasAccess = hasAccess;
+	}
+
+	public int getIsBlocked() {
+		return isBlocked;
+	}
+
+	public void setIsBlocked(int isBlocked) {
+		this.isBlocked = isBlocked;
+	}
+
+	public int getIsFake() {
+		return isFake;
+	}
+
+	public void setIsFake(int isFake) {
+		this.isFake = isFake;
+	}
+
+	public int getIsScam() {
+		return isScam;
+	}
+
+	public void setIsScam(int isScam) {
+		this.isScam = isScam;
+	}
+
+	public int getIsSupport() {
+		return isSupport;
+	}
+
+	public void setIsSupport(int isSupport) {
+		this.isSupport = isSupport;
+	}
+
+	public int getIsVerified() {
+		return isVerified;
+	}
+
+	public void setIsVerified(int isVerified) {
+		this.isVerified = isVerified;
+	}
+
+	public String getLanguageCode() {
+		return languageCode;
+	}
+
+	public void setLanguageCode(String languageCode) {
+		this.languageCode = languageCode;
+	}
+
+	public long getLastOnLineTime() {
+		return lastOnLineTime;
+	}
+
+	public void setLastOnLineTime(long lastOnLineTime) {
+		this.lastOnLineTime = lastOnLineTime;
+	}
+
+	public int getNeedPhoneNumberPrivacyException() {
+		return needPhoneNumberPrivacyException;
+	}
+
+	public void setNeedPhoneNumberPrivacyException(int needPhoneNumberPrivacyException) {
+		this.needPhoneNumberPrivacyException = needPhoneNumberPrivacyException;
+	}
+
+	public String getRestrictReason() {
+		return restrictReason;
+	}
+
+	public void setRestrictReason(String restrictReason) {
+		this.restrictReason = restrictReason;
+	}
+
+	public int getUserType() {
+		return userType;
+	}
+
+	public void setUserType(int userType) {
+		this.userType = userType;
+	}
+
+	public String getCommands() {
+		return commands;
+	}
+
+	public void setCommands(String commands) {
+		this.commands = commands;
+	}
+
+	public String getShareText() {
+		return shareText;
+	}
+
+	public void setShareText(String shareText) {
+		this.shareText = shareText;
 	}
 
 	public String getLinkAddressCode() {
-		return LinkAddressCode;
+		return linkAddressCode;
 	}
 
 	public void setLinkAddressCode(String linkAddressCode) {
-		LinkAddressCode = linkAddressCode;
+		this.linkAddressCode = linkAddressCode;
 	}
 
 	public String getDataSource() {
-		return DataSource;
+		return dataSource;
 	}
 
 	public void setDataSource(String dataSource) {
-		DataSource = dataSource;
+		this.dataSource = dataSource;
 	}
-
 }

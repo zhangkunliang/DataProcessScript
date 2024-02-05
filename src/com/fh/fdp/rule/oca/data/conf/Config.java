@@ -16,266 +16,262 @@ import com.google.gson.JsonParser;
 
 public class Config {
 
-	private String apolloHost;
+    private String apolloHost;
 
-	private String tmpPath;
-	private Set<String> enableAppType = new HashSet<>();
+    private String tmpPath;
+    private Set<String> enableAppType = new HashSet<>();
 
-	private String localCode;
 
-	private Map<String, String> apptypes = new HashMap<>();
-	private Map<String, String> waapptypes = new HashMap<>();
+    private String localCode;
 
-	private String passkey;
+    private Map<String, String> apptypes = new HashMap<>();
+    private Map<String, String> waapptypes = new HashMap<>();
+    private String passkey;
 
-	private String fhfs;
+    private String fhfs;
 
-	private String redisIp;
-	private int redisPort;
-	private String redisPass;
-	private int expandTime;
-	private int adCacheDB;
-	private int mobileCacheDB;
-	private int adAddressCacheDB;
-	private int countCache;
-	private int taskCache;
+    private String redisIp;
+    private int redisPort;
+    private String redisPass;
+    private int expandTime;
+    private int adCacheDB;
+    private int mobileCacheDB;
+    private int adAddressCacheDB;
+    private int countCache;
+    private int taskCache;
 
-	/**
-	 * 境内配置
-	 */
-	/**
-	 * 境内过期时间
-	 */
-	private int expandDomestic;
+    /**
+     * 境内配置
+     */
+    /**
+     * 境内过期时间
+     */
+    private int expandDomestic;
 
-	/**
-	 * 主表
-	 */
-	private int atvtCache;
+    /**
+     * 主表
+     */
+    private int atvtCache;
 
-	/**
-	 * 关联表
-	 */
-	private int atvtCacheRelation;
+    /**
+     * 关联表
+     */
+    private int atvtCacheRelation;
 
-	public Config(InputStream io, Logger logger) {
-		Properties prop = new Properties();
-		try {
-			prop.load(new InputStreamReader(io, StandardCharsets.UTF_8));
+    public int getAdAddressCacheDB() {
+        return adAddressCacheDB;
+    }
 
-			String apolloHostStr = prop.getProperty("APOLLO_HOST", "");
-			String codeStr = prop.getProperty("LOCAL_AREACODE", "");
-			String yqAppStr = prop.getProperty("YQ_APPTYPE", "");
-			String waAPPStr = prop.getProperty("WA_APPTYPE", "");
-			String enableAppStr = prop.getProperty("ENABLE_APPTYPE", "");
-			String passStr = prop.getProperty("AES_PASSKEY", "");
-			String pathStr = prop.getProperty("TMP_PATH", "");
-			String fhfsStr = prop.getProperty("FHFS_HOST", "");
-			String redisIPStr = prop.getProperty("REDIS_HOST", "");
-			String redisPortStr = prop.getProperty("REDIS_PORT", "");
-			String redisPassStr = prop.getProperty("REDIS_PASSWD", "");
-			String redisExpStr = prop.getProperty("REDIS_EXPIRE_DAY", "");
-			String redisAdAddStr = prop.getProperty("REDIS_AD_ADDRESS_DB", "");
-			String redisAdTaskStr = prop.getProperty("REDIS_AD_TASK_DB", "");
-			String redisPhoneTaskStr = prop.getProperty("REDIS_PHONE_TASK_DB", "");
-			String redisPointCountStr = prop.getProperty("REDIS_POINT_COUNT_DB", "");
-			String redisTaskCacheStr = prop.getProperty("REDIS_TASK_CACHE_DB", "");
+    public void setAdAddressCacheDB(int adAddressCacheDB) {
+        this.adAddressCacheDB = adAddressCacheDB;
+    }
 
-			String redisExpandDomesticStr = prop.getProperty("REDIS_EXPAND_DOMESTIC", "");
-			String redisAtvtDbStr = prop.getProperty("REDIS_ATVT_DB", "");
-			String redisAtvtRelationStr = prop.getProperty("REDIS_ATVT_RELATION", "");
+    public int getAdCacheDB() {
+        return adCacheDB;
+    }
 
-			setApolloHost(apolloHostStr);
-			setTmpPath(pathStr);
-			setLocalCode(codeStr);
-			setPasskey(passStr);
-			setFhfs(fhfsStr);
-			setRedisIp(redisIPStr);
-			setRedisPass(redisPassStr);
-			setRedisPort(Integer.parseInt(redisPortStr));
+    public void setAdCacheDB(int adCacheDB) {
+        this.adCacheDB = adCacheDB;
+    }
 
-			setExpandTime(Integer.parseInt(redisExpStr));
-			setAdCacheDB(Integer.parseInt(redisAdTaskStr));
-			setAdAddressCacheDB(Integer.parseInt(redisAdAddStr));
-			setMobileCacheDB(Integer.parseInt(redisPhoneTaskStr));
-			setCountCache(Integer.parseInt(redisPointCountStr));
-			setTaskCache(Integer.parseInt(redisTaskCacheStr));
+    public int getMobileCacheDB() {
+        return mobileCacheDB;
+    }
 
-			/**
-			 * 境内塞值
-			 */
-			setExpandDomestic(Integer.parseInt(redisExpandDomesticStr));
-			setAtvtCache(Integer.parseInt(redisAtvtDbStr));
-			setAtvtCacheRelation(Integer.parseInt(redisAtvtRelationStr));
+    public void setMobileCacheDB(int mobileCacheDB) {
+        this.mobileCacheDB = mobileCacheDB;
+    }
 
-			JsonParser.parseString(enableAppStr).getAsJsonArray().forEach(ele -> enableAppType.add(ele.getAsString()));
-			JsonParser.parseString(yqAppStr).getAsJsonArray().forEach(ele -> ele.getAsJsonObject().keySet()
-					.forEach(k -> apptypes.put(k, ele.getAsJsonObject().get(k).getAsString())));
-			JsonParser.parseString(waAPPStr).getAsJsonArray().forEach(ele -> ele.getAsJsonObject().keySet()
-					.forEach(k -> waapptypes.put(k, ele.getAsJsonObject().get(k).getAsString())));
+    public Map<String, String> getApptypes() {
+        return apptypes;
+    }
 
-		} catch (Exception e) {
-			logger.error("", e);
-		}
-	}
+    public void setApptypes(Map<String, String> apptypes) {
+        this.apptypes = apptypes;
+    }
 
-	public int getAdAddressCacheDB() {
-		return adAddressCacheDB;
-	}
+    public String getPasskey() {
+        return passkey;
+    }
 
-	public void setAdAddressCacheDB(int adAddressCacheDB) {
-		this.adAddressCacheDB = adAddressCacheDB;
-	}
+    public void setPasskey(String passkey) {
+        this.passkey = passkey;
+    }
 
-	public int getAdCacheDB() {
-		return adCacheDB;
-	}
+    public String getRedisIp() {
+        return redisIp;
+    }
 
-	public void setAdCacheDB(int adCacheDB) {
-		this.adCacheDB = adCacheDB;
-	}
+    public void setRedisIp(String redisIp) {
+        this.redisIp = redisIp;
+    }
 
-	public int getMobileCacheDB() {
-		return mobileCacheDB;
-	}
+    public int getRedisPort() {
+        return redisPort;
+    }
 
-	public void setMobileCacheDB(int mobileCacheDB) {
-		this.mobileCacheDB = mobileCacheDB;
-	}
+    public void setRedisPort(int redisPort) {
+        this.redisPort = redisPort;
+    }
 
-	public Map<String, String> getApptypes() {
-		return apptypes;
-	}
+    public String getRedisPass() {
+        return redisPass;
+    }
 
-	public void setApptypes(Map<String, String> apptypes) {
-		this.apptypes = apptypes;
-	}
+    public void setRedisPass(String redisPass) {
+        this.redisPass = redisPass;
+    }
 
-	public String getPasskey() {
-		return passkey;
-	}
+    public int getExpandTime() {
+        return expandTime * (int) Constant.ONE_DAYS_TIME;
+    }
 
-	public void setPasskey(String passkey) {
-		this.passkey = passkey;
-	}
+    public void setExpandTime(int expandTime) {
+        this.expandTime = expandTime;
+    }
 
-	public String getRedisIp() {
-		return redisIp;
-	}
+    public String getFhfs() {
+        return fhfs;
+    }
 
-	public void setRedisIp(String redisIp) {
-		this.redisIp = redisIp;
-	}
+    public void setFhfs(String fhfs) {
+        this.fhfs = fhfs;
+    }
 
-	public int getRedisPort() {
-		return redisPort;
-	}
+    public Map<String, String> getWaapptypes() {
+        return waapptypes;
+    }
 
-	public void setRedisPort(int redisPort) {
-		this.redisPort = redisPort;
-	}
+    public void setWaapptypes(Map<String, String> waapptypes) {
+        this.waapptypes = waapptypes;
+    }
 
-	public String getRedisPass() {
-		return redisPass;
-	}
+    public int getCountCache() {
+        return countCache;
+    }
 
-	public void setRedisPass(String redisPass) {
-		this.redisPass = redisPass;
-	}
+    public void setCountCache(int countCache) {
+        this.countCache = countCache;
+    }
 
-	public int getExpandTime() {
-		return expandTime * (int)Constant.ONE_DAYS_TIME;
-	}
+    public String getLocalCode() {
+        return localCode;
+    }
 
-	public void setExpandTime(int expandTime) {
-		this.expandTime = expandTime;
-	}
+    public void setLocalCode(String localCode) {
+        this.localCode = localCode;
+    }
 
-	public String getFhfs() {
-		return fhfs;
-	}
+    public int getTaskCache() {
+        return taskCache;
+    }
 
-	public void setFhfs(String fhfs) {
-		this.fhfs = fhfs;
-	}
+    public void setTaskCache(int taskCache) {
+        this.taskCache = taskCache;
+    }
 
-	public Map<String, String> getWaapptypes() {
-		return waapptypes;
-	}
+    public String getTmpPath() {
+        return tmpPath;
+    }
 
-	public void setWaapptypes(Map<String, String> waapptypes) {
-		this.waapptypes = waapptypes;
-	}
+    public void setTmpPath(String tmpPath) {
+        this.tmpPath = tmpPath;
+    }
 
-	public int getCountCache() {
-		return countCache;
-	}
+    public Set<String> getEnableAppType() {
+        return enableAppType;
+    }
 
-	public void setCountCache(int countCache) {
-		this.countCache = countCache;
-	}
+    public void setEnableAppType(Set<String> enableAppType) {
+        this.enableAppType = enableAppType;
+    }
 
-	public String getLocalCode() {
-		return localCode;
-	}
+    public int getExpandDomestic() {
+        return expandDomestic;
+    }
 
-	public void setLocalCode(String localCode) {
-		this.localCode = localCode;
-	}
+    public void setExpandDomestic(int expandDomestic) {
+        this.expandDomestic = expandDomestic;
+    }
 
-	public int getTaskCache() {
-		return taskCache;
-	}
+    public int getAtvtCache() {
+        return atvtCache;
+    }
 
-	public void setTaskCache(int taskCache) {
-		this.taskCache = taskCache;
-	}
+    public void setAtvtCache(int atvtCache) {
+        this.atvtCache = atvtCache;
+    }
 
-	public String getTmpPath() {
-		return tmpPath;
-	}
+    public int getAtvtCacheRelation() {
+        return atvtCacheRelation;
+    }
 
-	public void setTmpPath(String tmpPath) {
-		this.tmpPath = tmpPath;
-	}
+    public void setAtvtCacheRelation(int atvtCacheRelation) {
+        this.atvtCacheRelation = atvtCacheRelation;
+    }
 
-	public Set<String> getEnableAppType() {
-		return enableAppType;
-	}
+    public String getApolloHost() {
+        return apolloHost;
+    }
 
-	public void setEnableAppType(Set<String> enableAppType) {
-		this.enableAppType = enableAppType;
-	}
+    public void setApolloHost(String apolloHost) {
+        this.apolloHost = apolloHost;
+    }
 
-	public int getExpandDomestic() {
-		return expandDomestic;
-	}
+    public Config(InputStream io, Logger logger) {
+        Properties prop = new Properties();
+        try {
+            prop.load(new InputStreamReader(io, StandardCharsets.UTF_8));
 
-	public void setExpandDomestic(int expandDomestic) {
-		this.expandDomestic = expandDomestic;
-	}
+            String apolloHostStr = prop.getProperty("APOLLO_HOST", "");
+            String codeStr = prop.getProperty("LOCAL_AREACODE", "");
+            String yqAppStr = prop.getProperty("YQ_APPTYPE", "");
+            String waAPPStr = prop.getProperty("WA_APPTYPE", "");
+            String enableAppStr = prop.getProperty("ENABLE_APPTYPE", "");
+            String passStr = prop.getProperty("AES_PASSKEY", "");
+            String pathStr = prop.getProperty("TMP_PATH", "");
+            String fhfsStr = prop.getProperty("FHFS_HOST", "");
+            String redisIPStr = prop.getProperty("REDIS_HOST", "");
+            String redisPortStr = prop.getProperty("REDIS_PORT", "");
+            String redisPassStr = prop.getProperty("REDIS_PASSWD", "");
+            String redisExpStr = prop.getProperty("REDIS_EXPIRE_DAY", "");
+            String redisAdAddStr = prop.getProperty("REDIS_AD_ADDRESS_DB", "");
+            String redisAdTaskStr = prop.getProperty("REDIS_AD_TASK_DB", "");
+            String redisPhoneTaskStr = prop.getProperty("REDIS_PHONE_TASK_DB", "");
+            String redisPointCountStr = prop.getProperty("REDIS_POINT_COUNT_DB", "");
+            String redisTaskCacheStr = prop.getProperty("REDIS_TASK_CACHE_DB", "");
 
-	public int getAtvtCache() {
-		return atvtCache;
-	}
+            String redisExpandDomesticStr = prop.getProperty("REDIS_EXPAND_DOMESTIC", "");
+            String redisAtvtDbStr = prop.getProperty("REDIS_ATVT_DB", "");
+            String redisAtvtRelationStr = prop.getProperty("REDIS_ATVT_RELATION", "");
 
-	public void setAtvtCache(int atvtCache) {
-		this.atvtCache = atvtCache;
-	}
+            this.apolloHost = apolloHostStr;
+            this.tmpPath = pathStr;
+            this.localCode = codeStr;
+            this.passkey = passStr;
+            this.fhfs = fhfsStr;
+            this.redisIp = redisIPStr;
+            this.redisPass = redisPassStr;
+            this.redisPort = Integer.parseInt(redisPortStr);
+            this.expandTime = Integer.parseInt(redisExpStr);
+            this.adCacheDB = Integer.parseInt(redisAdTaskStr);
+            this.adAddressCacheDB = Integer.parseInt(redisAdAddStr);
+            this.mobileCacheDB = Integer.parseInt(redisPhoneTaskStr);
+            this.countCache = Integer.parseInt(redisPointCountStr);
+            this.taskCache = Integer.parseInt(redisTaskCacheStr);
+            // 境内塞值
+            this.expandDomestic = Integer.parseInt(redisExpandDomesticStr);
+            this.atvtCache = Integer.parseInt(redisAtvtDbStr);
+            this.atvtCacheRelation = Integer.parseInt(redisAtvtRelationStr);
 
-	public int getAtvtCacheRelation() {
-		return atvtCacheRelation;
-	}
+            JsonParser.parseString(enableAppStr).getAsJsonArray().forEach(ele -> enableAppType.add(ele.getAsString()));
+            JsonParser.parseString(yqAppStr).getAsJsonArray().forEach(ele -> ele.getAsJsonObject().keySet()
+                    .forEach(k -> apptypes.put(k, ele.getAsJsonObject().get(k).getAsString())));
+            JsonParser.parseString(waAPPStr).getAsJsonArray().forEach(ele -> ele.getAsJsonObject().keySet()
+                    .forEach(k -> waapptypes.put(k, ele.getAsJsonObject().get(k).getAsString())));
 
-	public void setAtvtCacheRelation(int atvtCacheRelation) {
-		this.atvtCacheRelation = atvtCacheRelation;
-	}
-
-	public String getApolloHost() {
-		return apolloHost;
-	}
-
-	public void setApolloHost(String apolloHost) {
-		this.apolloHost = apolloHost;
-	}
+        } catch (Exception e) {
+            logger.error("", e);
+        }
+    }
 }

@@ -1,5 +1,7 @@
 package com.fh.fdp.rule.oca.data.conf;
 
+import com.google.gson.annotations.SerializedName;
+
 public class CrawlerStatus {
 	@SerializedName("mdid")
 	private String mdid;
@@ -10,25 +12,24 @@ public class CrawlerStatus {
 	@SerializedName("updatetime")
 	private Long updatetime;
 	@SerializedName("rule_type")
-	private int rule_type;
+	private int ruleType;
 	@SerializedName("rule_value")
-	private String rule_value;
+	private String ruleValue;
 	@SerializedName("collect_status")
-	private int collect_status;
+	private int collectStatus;
 	@SerializedName("collect_count")
-	private int collect_count;
+	private int collectCount;
 	@SerializedName("createtime")
 	private Long createtime;
 
-	
 	public String getMdid() {
 		return mdid;
 	}
-	
+
 	public void setMdid(String mdid) {
 		this.mdid = mdid;
 	}
-	
+
 	public Long getUpdatetime() {
 		return updatetime;
 	}
@@ -36,42 +37,53 @@ public class CrawlerStatus {
 	public void setUpdatetime(Long updatetime) {
 		this.updatetime = updatetime;
 	}
+
 	public String getApptype() {
 		return apptype;
 	}
+
 	public void setApptype(String apptype) {
 		this.apptype = apptype;
 	}
+
 	public String getSource() {
 		return source;
 	}
+
 	public void setSource(String source) {
 		this.source = source;
 	}
-	public int getRule_type() {
-		return rule_type;
-	}
-	public void setRule_type(int rule_type) {
-		this.rule_type = rule_type;
-	}
-	public String getRule_value() {
-		return rule_value;
-	}
-	public void setRule_value(String rule_value) {
-		this.rule_value = rule_value;
-	}
-	public int getCollect_status() {
-		return collect_status;
-	}
-	public void setCollect_status(int collect_status) {
-		this.collect_status = collect_status;
-	}
-	public int getCollect_count() {
-		return collect_count;
+
+	public int getRuleType() {
+		return ruleType;
 	}
 
-	public void setCollect_count(int collect_count) {
-		this.collect_count = collect_count;
+	public void setRuleType(int ruleType) {
+		this.ruleType = ruleType;
+	}
+
+	public String getRuleValue() {
+		return ruleValue;
+	}
+
+	public void setRuleValue(String ruleValue) {
+		this.ruleValue = ruleValue;
+	}
+
+	public int getCollectStatus() {
+		return collectStatus;
+	}
+
+	public void setCollectStatus(int collectStatus) {
+		this.collectStatus = collectStatus;
+	}
+
+	public int getCollectCount() {
+		return collectCount;
+	}
+
+	public void setCollectCount(int collectCount) {
+		this.collectCount = collectCount;
 	}
 
 	public Long getCreatetime() {

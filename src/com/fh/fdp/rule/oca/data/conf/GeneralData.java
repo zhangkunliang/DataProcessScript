@@ -1,7 +1,7 @@
 package com.fh.fdp.rule.oca.data.conf;
 
 public class GeneralData {
-
+	GeneralData(){}
 	public static final String ADM_BASE_PERSON_OVERSEAS_PERSONINFO = "adm_base_person_overseas_personinfo";
 	public static final String OSS_COMMON_PERSONINFO_OVERSEAS = "oss_common_personinfo_overseas";
 	public static final String ADM_RELE_PERSON_PERSON_OVERSEAS_RELATION_DETAIL = "adm_rele_person_person_overseas_relation_detail";
